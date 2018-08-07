@@ -1,0 +1,149 @@
+cmake_minimum_required(VERSION 2.8)
+
+PROJECT(dmlogger)
+
+IF (WIN32)  
+    MESSAGE(STATUS "Now is windows")
+
+    SET(DMOS_NAME "win")
+
+    SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11" )
+ELSEIF (APPLE)  
+    MESSAGE(STATUS "Now is Apple systems")  
+
+    SET(DMOS_NAME "mac") 
+
+    SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread -g" )
+ELSEIF (UNIX)  
+    MESSAGE(STATUS "Now is UNIX-like OS")  
+
+    SET(DMOS_NAME "lin") 
+    
+    SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread -g" )
+ENDIF ()
+
+INCLUDE(CheckFunctionExists)
+INCLUDE(CheckIncludeFile)
+INCLUDE(CheckIncludeFileCXX)
+INCLUDE(CheckStructHasMember)
+INCLUDE(CheckSymbolExists)
+INCLUDE(CheckTypeSize)
+
+CHECK_INCLUDE_FILE(stdint.h HAVE_STDINT_H)
+CHECK_INCLUDE_FILE_CXX("unordered_map" HAVE_UNORDERED_MAP)
+
+CHECK_SYMBOL_EXISTS(snprintf stdio.h HAVE_SNPRINTF)
+CHECK_TYPE_SIZE(uint64_t HAVE_UINT64_T)
+
+IF (WIN32 AND HAVE_SNPRINTF)
+  SET_PROPERTY (SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/src/windows/port.cc APPEND PROPERTY COMPILE_DEFINITIONS HAVE_SNPRINTF)
+ENDIF (WIN32 AND HAVE_SNPRINTF)
+
+IF (WIN32)  
+    SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+    SET(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib/${DMOS_NAME})
+
+    LINK_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/lib/${DMOS_NAME})
+    
+    INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/include)
+    
+    INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src/windows/glog)
+    INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src/windows)
+    INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src/base)
+    INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src/glog)
+    INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src)
+
+    FILE(GLOB_RECURSE SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/windows/port.cc
+    
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/logging.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/demangle.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/raw_logging.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/symbolize.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utilities.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/vlog_is_on.cc
+    )
+
+    ADD_LIBRARY(dmlogger ${SOURCES})
+    
+    FILE(GLOB_RECURSE SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/*.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/dmloggertest.cc
+    )
+
+    ADD_EXECUTABLE(dmloggertest ${SOURCES})
+
+    TARGET_LINK_LIBRARIES(dmloggertest dmlogger)
+ELSEIF (APPLE)  
+    SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+    SET(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib/${DMOS_NAME})
+
+    LINK_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/lib/${DMOS_NAME})
+
+    INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/include)
+    
+    INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src/glog)
+    INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src/base)    
+    INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src)
+
+    FILE(GLOB_RECURSE SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/signalhandler.cc
+    
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/logging.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/demangle.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/raw_logging.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/symbolize.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utilities.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/vlog_is_on.cc
+    )
+
+    ADD_LIBRARY(dmlogger ${SOURCES})
+
+    FILE(GLOB_RECURSE SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/*.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/dmloggertest.cc
+    )
+
+    ADD_EXECUTABLE(dmloggertest ${SOURCES})
+
+    TARGET_LINK_LIBRARIES(dmloggertest dmlogger pthread)
+ELSEIF (UNIX)  
+    SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+    SET(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib/${DMOS_NAME})
+
+    LINK_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/lib/${DMOS_NAME})
+
+    INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/include)
+    
+    INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src/glog)
+    INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src/base)    
+    INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src)
+
+    FILE(GLOB_RECURSE SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/signalhandler.cc
+    
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/logging.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/demangle.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/raw_logging.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/symbolize.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utilities.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/vlog_is_on.cc
+    )
+
+    ADD_LIBRARY(dmlogger ${SOURCES})
+
+    FILE(GLOB_RECURSE SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/*.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/dmloggertest.cc
+    )
+
+    ADD_EXECUTABLE(dmloggertest ${SOURCES})
+
+    TARGET_LINK_LIBRARIES(dmloggertest dmlogger pthread)
+ENDIF ()
