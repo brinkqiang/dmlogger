@@ -7,7 +7,7 @@ IF (WIN32)
 
     SET(DMOS_NAME "win")
 
-    SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11" )
+    SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" )
 ELSEIF (APPLE)  
     MESSAGE(STATUS "Now is Apple systems")  
 
