@@ -9,5 +9,5 @@ mkdir build
 cd build
 
 cmake -DCMAKE_BUILD_TYPE=relwithdebinfo ..
-make
+make -j1
 cd ..
