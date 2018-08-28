@@ -49,13 +49,13 @@ private:
             FLAGS_max_log_size = 4096;
             FLAGS_stop_logging_if_full_disk = false;
             FLAGS_alsologtostderr = true;
-			FLAGS_logtostderr = false;
-			FLAGS_colorlogtostderr = true;
+            FLAGS_logtostderr = false;
+            FLAGS_colorlogtostderr = true;
             FLAGS_minloglevel = 0;
             FLAGS_logbufsecs = 0;
-			FLAGS_logcloselevelrepeat = true;
+            FLAGS_logcloselevelrepeat = true;
             
-			FLAGS_log_dir = DMGetRootPath();
+            FLAGS_log_dir = DMGetRootPath();
         }        
 private:
         const char* m_argv0;
